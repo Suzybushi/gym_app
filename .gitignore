@@ -1,0 +1,8 @@
+# 临时测试文件
+*.log
+node_modules/
+_t.js
+_t2.js
+_chk.js
+.DS_Store
+Thumbs.db
