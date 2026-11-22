@@ -12,7 +12,7 @@
   :root{
     --bg:#0d0f14; --card:#171a21; --card2:#1f2430; --line:#2a3140;
     --txt:#e8ecf2; --dim:#8b94a7; --accent:#4f8cff; --accent2:#31c48d;
-    --warn:#ffb020; --danger:#ff5470;
+    --warn:#ffb020;
     --r:16px;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
@@ -145,7 +145,6 @@
   .startup-card .emoji{font-size:48px; margin-bottom:8px;}
   .startup-card h2{margin:0 0 4px; font-size:22px;}
   .startup-card .sub{color:var(--dim); font-size:13px; margin-bottom:24px; line-height:1.5;}
-  .startup-card .btn-row{display:flex; flex-direction:column; gap:10px;}
 
   /* 修复计划：分组 / 要点 / 计时 / 完成 */
   .blockhead{display:flex; align-items:baseline; gap:8px; margin:18px 2px 10px;}
@@ -235,8 +234,9 @@
 <script>
 "use strict";
 
-/* ========== 内置的默认计划（一打开就能用）========== */
+/* ========== 内置力量计划（首次启动选择后使用）========== */
 const STRENGTH_PLAN = {
+  id: "strength-v1",
   name: "推-拉-腿-休 四日训练计划",
   protocol: "231协议 · 主/副项6组：预热2组(40-50%,8-10次) → 主攻3组(12-16RM,离心2秒,留1-2次) → 力竭1组(降重15%)",
   days: [
@@ -406,14 +406,33 @@ const BUILTIN_PLANS = [
   { key:"rehab", icon:"🧘", title:"Left AIC + Right BC 修复计划", desc:"B1 / B2 主循环 + 每日 A 碎片保底", plan:REHAB_PLAN }
 ];
 
-// parsePlan 里仍引用 SEED_PLAN.protocol，保留别名
-const SEED_PLAN = STRENGTH_PLAN;
-
 /* ========== 存储 ========== */
 const KEY = "gymlog.v1";
 let db = load();
-function fresh(){ return { plan: JSON.parse(JSON.stringify(STRENGTH_PLAN)), anchor:null, logs:{}, nutrition:null }; }
-function load(){ try{ const raw=localStorage.getItem(KEY); if(!raw) return fresh(); return JSON.parse(raw); }catch(e){ console.warn("铁馆: localStorage 数据损坏，已重置为默认计划", e); return fresh(); } }
+function fresh(){ return { plan: clonePlan(STRENGTH_PLAN), anchor:null, logs:{}, nutrition:null }; }
+function normalizeDB(data){
+  const d = (data && typeof data==="object" && !Array.isArray(data)) ? data : {};
+  if(!d.plan || typeof d.plan!=="object" || !Array.isArray(d.plan.days) || d.plan.days.length===0){
+    d.plan = clonePlan(STRENGTH_PLAN);
+  }
+  if(!d.logs || typeof d.logs!=="object" || Array.isArray(d.logs)) d.logs = {};
+  if(!d.anchor || typeof d.anchor!=="object" || Array.isArray(d.anchor)) d.anchor = null;
+  if(!d.nutrition || typeof d.nutrition!=="object" || Array.isArray(d.nutrition)) d.nutrition = null;
+  return d;
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(!raw) return fresh();
+    const data = normalizeDB(JSON.parse(raw));
+    // 老数据没有 onboarded 标记：视为已有用户，避免启动弹层覆盖已有计划
+    if(data.onboarded === undefined || data.onboarded === null) data.onboarded = true;
+    return data;
+  }catch(e){
+    console.warn("铁馆: localStorage 数据损坏，已重置为默认计划", e);
+    return fresh();
+  }
+}
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(db)); }
   catch(e){ toast("保存失败："+(e.name==="QuotaExceededError"?"空间已满":("错误("+e.name+")"))); } }
 
@@ -449,11 +468,9 @@ function calcNutri(weight,goal){
 
 /* ========== 组结构（231 或 固定组）========== */
 function setRows(ex){
-  if(ex.scheme==="practice"){
-    return Array.from({length: ex.sets||1}, (_,i)=>({label:"组"+(i+1), sub: ex.target||"", cls:""}));
-  }
-  if(ex.scheme==="fixed"){
-    return Array.from({length: ex.sets||3}, (_,i)=>({label:"组"+(i+1), sub: ex.target||"", cls:""}));
+  if(ex.scheme==="practice" || ex.scheme==="fixed"){
+    const n = ex.sets || (ex.scheme==="fixed" ? 3 : 1);
+    return Array.from({length:n}, (_,i)=>({label:"组"+(i+1), sub: ex.target||"", cls:""}));
   }
   return [
     {label:"预热 1", sub:"40-50% · 8-10次", cls:"warm"},
@@ -468,13 +485,19 @@ function setRows(ex){
 /* ========== 记录读写 ========== */
 function todayLog(){
   const d=today();
-  if(!db.logs[d]) db.logs[d]={ variant:{}, sets:{} };
-  return db.logs[d];
+  if(!db.logs[d] || typeof db.logs[d]!=="object" || Array.isArray(db.logs[d])){
+    db.logs[d]={ variant:{}, sets:{} };
+  }
+  const log=db.logs[d];
+  if(!log.variant || typeof log.variant!=="object" || Array.isArray(log.variant)) log.variant={};
+  if(!log.sets || typeof log.sets!=="object" || Array.isArray(log.sets)) log.sets={};
+  return log;
 }
 function lastFor(exName){
   const dates = Object.keys(db.logs).filter(d=>d!==today()).sort().reverse();
   for(const d of dates){
-    const s = db.logs[d].sets?.[exName];
+    const entry = db.logs[d];
+    const s = entry && typeof entry==="object" ? entry.sets?.[exName] : undefined;
     if(s && s.some(x=>x && (x.w||x.r||x.done))) return { date:d, sets:s };
   }
   return null;
@@ -496,9 +519,12 @@ const esc = s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":
 
 /* ========== 倒计时 ========== */
 const activeTimers = new Set();
+const timerStops = new Set();
 function stopAllTimers(){
   activeTimers.forEach(id=>clearInterval(id));
   activeTimers.clear();
+  timerStops.forEach(fn=>fn());
+  timerStops.clear();
 }
 function fmtClock(sec){
   const s=Math.max(0,Math.ceil(sec));
@@ -519,6 +545,8 @@ function timerWidget(seconds){
   const syncBtn=()=>{
     start.textContent = running ? "暂停" : (remaining<=0 ? "重来" : (remaining<seconds ? "继续" : "开始"));
   };
+  const stop=()=>{ settle(); paint(); syncBtn(); };
+  timerStops.add(stop);
   start.onclick=()=>{
     if(running){
       remaining=Math.max(0,(endsAt-Date.now())/1000);
@@ -546,7 +574,7 @@ function render(){
   stopAllTimers();
   // 计划缺失或 days 为空（存储损坏）→ 恢复内置计划，避免白屏
   if(!db.plan || !Array.isArray(db.plan.days) || db.plan.days.length===0){
-    db.plan = JSON.parse(JSON.stringify(STRENGTH_PLAN)); save();
+    db.plan = clonePlan(STRENGTH_PLAN); save();
   }
   $("#planName").textContent = db.plan.name || "";
   renderCycle();
@@ -576,12 +604,14 @@ function render(){
   }
 
   // ---------- 营养摄入建议 ----------
-  const nutri = db.nutrition || { weight:57, goal:"gain" };
-  const nr = calcNutri(nutri.weight, nutri.goal);
+  const rawNutri = db.nutrition || {};
+  const goalKey = MACRO_TABLE[rawNutri.goal] ? rawNutri.goal : "gain";
+  const weight = Number.isFinite(+rawNutri.weight) ? Math.min(200, Math.max(30, +rawNutri.weight)) : 57;
+  const nr = calcNutri(weight, goalKey);
   const nCard=document.createElement("div"); nCard.className="card nutri";
   const nTop=document.createElement("div"); nTop.className="top";
   nTop.innerHTML=`<div class="icon">🥗</div>
-    <div class="summary">每日摄入参考 <small>${MACRO_TABLE[nutri.goal].label} · ${MACRO_TABLE[nutri.goal].desc}</small></div>
+    <div class="summary">每日摄入参考 <small>${MACRO_TABLE[goalKey].label} · ${MACRO_TABLE[goalKey].desc}</small></div>
     <div class="caret">›</div>`;
   nTop.setAttribute("role","button"); nTop.setAttribute("tabindex","0");
   nTop.setAttribute("aria-expanded","false"); nTop.setAttribute("aria-controls","nutri-body");
@@ -594,7 +624,7 @@ function render(){
   // 目标选择
   const gRow=document.createElement("div"); gRow.className="goal-row";
   ["gain","shape","lose"].forEach(g=>{
-    const gc=document.createElement("button"); gc.className="gchip"+(g===nutri.goal?" on":"")+(g==="lose"?" lose":"");
+    const gc=document.createElement("button"); gc.className="gchip"+(g===goalKey?" on":"")+(g==="lose"?" lose":"");
     gc.textContent=MACRO_TABLE[g].label;
     gc.onclick=(e)=>{ e.stopPropagation();
       db.nutrition = { ...db.nutrition||{weight:57}, goal:g }; save(); render(); };
@@ -605,9 +635,12 @@ function render(){
   const wRow=document.createElement("div"); wRow.className="wtrow";
   wRow.innerHTML=`<span>体重</span>`;
   const wInp=document.createElement("input"); wInp.type="number"; wInp.inputMode="decimal"; wInp.min="30"; wInp.max="200";
-  wInp.value=nutri.weight; wInp.placeholder="57";
+  wInp.value=weight; wInp.placeholder="57";
   wInp.addEventListener("change",()=>{
-    const v=parseFloat(wInp.value); if(v>=30&&v<=200){ db.nutrition={...db.nutrition||{goal:"gain"},weight:v}; save(); render(); } });
+    const v=parseFloat(wInp.value);
+    if(v>=30&&v<=200){ db.nutrition={...db.nutrition||{goal:"gain"},weight:v}; save(); render(); }
+    else { wInp.value=weight; toast("体重需在 30~200 kg"); }
+  });
   wRow.appendChild(wInp);
   const u=document.createElement("span"); u.textContent="kg"; wRow.appendChild(u);
   nBody.appendChild(wRow);
@@ -629,7 +662,7 @@ function render(){
 
   if(day.type==="rest"){
     const c=document.createElement("div"); c.className="card rest-card"; c.style.padding="16px";
-    c.innerHTML = `<h2>${db.plan.id==="rehab-v1" ? "恢复日清单" : "居家热修复协议"}</h2>`;
+    c.innerHTML = `<h2>${db.plan.id===REHAB_PLAN.id ? "恢复日清单" : "居家热修复协议"}</h2>`;
     const ul=document.createElement("ul");
     (day.recovery||[]).forEach(r=>{ const li=document.createElement("li"); li.textContent=r; ul.appendChild(li); });
     c.appendChild(ul);
@@ -640,14 +673,16 @@ function render(){
       b.style.fontSize="12px"; b.textContent = db.plan.protocol;
       main.appendChild(b);
     }
-    const dayPrefix = db.plan.id==="rehab-v1" ? (day.id+"·") : "";
+    const planKey = db.plan.id || db.plan.name || "plan";
+    const dayPrefix = db.plan.id===REHAB_PLAN.id ? (day.id+"·") : "";
+    const variantPrefix = planKey+"·"+day.id+"·";
     let curBlock=null;
     day.exercises.forEach((ex,i)=>{
       if(ex.block && ex.block!==curBlock){
         main.appendChild(blockHead(ex.block, ex.blockTime));
         curBlock=ex.block;
       }
-      main.appendChild(exerciseCard(ex,i,dayPrefix));
+      main.appendChild(exerciseCard(ex,i,dayPrefix,variantPrefix));
     });
     if(Array.isArray(day.retest) && day.retest.length){
       const rb=document.createElement("div"); rb.className="banner"; rb.style.borderColor="#5a4a1f";
@@ -706,13 +741,14 @@ function dailyCard(daily, open){
     const n=document.createElement("div"); n.className="daily-note"; n.textContent=daily.note;
     body.appendChild(n);
   }
+  const planKey = db.plan.id || db.plan.name || "plan";
   let curBlock=null;
   (daily.exercises||[]).forEach((ex,i)=>{
     if(ex.block && ex.block!==curBlock){
       body.appendChild(blockHead(ex.block, ex.blockTime));
       curBlock=ex.block;
     }
-    body.appendChild(exerciseCard(ex,i,"A·"));
+    body.appendChild(exerciseCard(ex,i,"A·",planKey+"·daily·"));
   });
   card.appendChild(body);
   return card;
@@ -742,11 +778,15 @@ function guideCard(items){
   return card;
 }
 
-function exerciseCard(ex,i,prefix){
+function exerciseCard(ex,i,prefix,variantPrefix){
   prefix = prefix || "";
+  variantPrefix = variantPrefix != null ? variantPrefix : prefix;
   const log=todayLog();
-  const slot = prefix+i;                               // 变体槽位：区分计划/天/动作位置
-  const chosen = log.variant[slot] || ex.name;          // 当前选中的（主动作或替代）
+  const slot = prefix+i;                               // 日志键：位置+动作名，兼容旧记录
+  const variantSlot = variantPrefix+i;                  // 变体槽位：按计划/天隔离，避免跨天串动作
+  const allowed = [ex.name, ...(ex.alts || [])];
+  const stored = log.variant[variantSlot] !== undefined ? log.variant[variantSlot] : log.variant[slot];
+  const chosen = allowed.includes(stored) ? stored : ex.name;
   const exKey = slot+"·"+chosen;                        // 记录键：位置+动作名，区分同名动作与不同变体
   const isPractice = ex.scheme==="practice";
   const card=document.createElement("div"); card.className="card";
@@ -774,9 +814,10 @@ function exerciseCard(ex,i,prefix){
       a.className="alt"+(nm===chosen?" on":"");
       a.textContent=nm;
       a.onclick=(e)=>{ e.stopPropagation();
-        log.variant[slot] = (nm===ex.name ? undefined : nm); save();
+        log.variant[variantSlot] = (nm===ex.name ? undefined : nm); save();
         stopAllTimers();
-        const fresh=exerciseCard(ex,i,prefix); fresh.classList.add("open"); card.replaceWith(fresh); };
+        const nextCard=exerciseCard(ex,i,prefix,variantPrefix);
+        nextCard.classList.add("open"); card.replaceWith(nextCard); };
       alts.appendChild(a);
     });
     card.appendChild(alts);
@@ -942,15 +983,15 @@ function parsePlan(text){
     if(REST_RE.test(line)){ if(cur.exercises.length===0){ cur.type="rest"; if(line.length<40) cur.recovery.push(line); } return; }
   });
   const good = days.filter(d=> d.exercises.length>0 || d.type==="rest");
-  return good.length ? { name:"我的训练计划", protocol: SEED_PLAN.protocol, days:good } : null;
+  return good.length ? { name:"我的训练计划", protocol: STRENGTH_PLAN.protocol, days:good } : null;
 }
 
 /* ========== 内置计划切换 ========== */
 function clonePlan(p){ return JSON.parse(JSON.stringify(p)); }
 function currentPlanKey(){
   if(!db.onboarded || !db.plan) return "";
-  if(db.plan.id === "rehab-v1") return "rehab";
-  const hit = BUILTIN_PLANS.find(p=>p.plan.name === db.plan.name);
+  const byId = db.plan.id ? BUILTIN_PLANS.find(p=>p.plan.id === db.plan.id) : null;
+  const hit = byId || BUILTIN_PLANS.find(p=>p.plan.name === db.plan.name);
   return hit ? hit.key : "";
 }
 function applyPlan(key){
@@ -1014,7 +1055,7 @@ $("#btnParse").onclick=()=>{
   pv.innerHTML="";
   plan.days.forEach(d=>{
     const el=document.createElement("div"); el.className="pday";
-    if(d.type==="rest"){ el.innerHTML=`<b class="rest">Day ${d.id} · 休息</b>`; }
+    if(d.type==="rest"){ el.innerHTML=`<b class="rest">Day ${esc(d.id)} · 休息</b>`; }
     else{
       el.innerHTML=`<b>Day ${esc(d.id)} · ${esc(d.title||"训练")}</b>`;
       const ol=document.createElement("ol");
@@ -1059,14 +1100,20 @@ $("#fileBackup").addEventListener("change", function(){
   const file = this.files[0];
   if(!file) return;
   const reader = new FileReader();
+  reader.onerror = ()=> toast("读取备份失败");
   reader.onload = (e)=>{
     try{
       const backup = JSON.parse(e.target.result);
-      if(!backup.data || !backup.data.plan || !backup.data.logs){
+      const data = backup && backup.data;
+      if(!data || typeof data!=="object"
+        || !data.plan || typeof data.plan!=="object"
+        || !Array.isArray(data.plan.days) || data.plan.days.length===0
+        || !data.logs || typeof data.logs!=="object" || Array.isArray(data.logs)){
         toast("备份文件格式不正确"); return;
       }
       if(!confirm("确认导入此备份？当前所有数据将被覆盖。")) return;
-      db = backup.data;
+      db = normalizeDB(data);
+      db.onboarded = true;
       save();
       $("#sheet").classList.remove("on");
       render();
