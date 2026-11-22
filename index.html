@@ -62,14 +62,14 @@
   .card .scheme{font-size:11px; color:var(--dim); background:var(--card2); padding:3px 8px; border-radius:20px;}
   .card .caret{color:var(--dim); font-size:14px;}
   @media (prefers-reduced-motion: no-preference){ .card .caret{transition:transform .2s;} }
-  .card.open .caret{transform:rotate(90deg);}
+  .card.open > .top .caret{transform:rotate(90deg);}
 
   .alts{display:flex; gap:6px; flex-wrap:wrap; padding:0 14px 12px 50px;}
   .alt{font-size:12px; padding:5px 10px; border-radius:20px; background:var(--card2); color:var(--dim); border:1px solid transparent;}
   .alt.on{background:#20304d; color:var(--accent); border-color:var(--accent);}
 
   .body{display:none; padding:0 14px 14px; border-top:1px solid var(--line);}
-  .card.open .body{display:block;}
+  .card.open > .body{display:block;}
   .lastline{font-size:12px; color:var(--dim); padding:10px 2px 6px; display:flex; align-items:center; justify-content:space-between;}
   .reuse{color:var(--accent); font-size:12px; padding:4px 10px; border-radius:20px; background:#18233b;}
 
@@ -121,6 +121,7 @@
   .sheet p.hint{color:var(--dim); font-size:13px; margin:0 0 12px; line-height:1.5;}
   textarea{width:100%; min-height:150px; background:var(--card); border:1px solid var(--line);
     border-radius:12px; padding:12px; font-size:14px; line-height:1.5; resize:vertical;}
+  textarea:focus{outline:none; border-color:var(--accent);}
   .btn{display:block; width:100%; text-align:center; padding:14px; border-radius:14px; font-size:16px; font-weight:600;}
   .btn.primary{background:var(--accent); color:#fff; margin-top:12px;}
   .btn.ghost{background:var(--card2); color:var(--dim); margin-top:8px;}
@@ -139,11 +140,51 @@
     display:flex; align-items:center; justify-content:center; padding:20px;}
   .startup-overlay.hidden{display:none;}
   .startup-card{background:var(--card); border:1px solid var(--line); border-radius:20px;
-    padding:28px 24px 24px; max-width:360px; width:100%; text-align:center;}
+    padding:28px 24px 24px; max-width:360px; width:100%; text-align:center;
+    max-height:92vh; overflow:auto;}
   .startup-card .emoji{font-size:48px; margin-bottom:8px;}
   .startup-card h2{margin:0 0 4px; font-size:22px;}
   .startup-card .sub{color:var(--dim); font-size:13px; margin-bottom:24px; line-height:1.5;}
   .startup-card .btn-row{display:flex; flex-direction:column; gap:10px;}
+
+  /* 修复计划：分组 / 要点 / 计时 / 完成 */
+  .blockhead{display:flex; align-items:baseline; gap:8px; margin:18px 2px 10px;}
+  .blockhead:first-of-type{margin-top:8px;}
+  .blockhead .btitle{font-size:15px; font-weight:700; color:var(--txt); flex:1; min-width:0;}
+  .blockhead .btime{font-size:11px; color:var(--dim); background:var(--card2); padding:2px 8px; border-radius:20px; flex-shrink:0;}
+  .detail{white-space:pre-line; color:var(--dim); font-size:13px; line-height:1.65;
+    background:var(--card2); border:1px solid var(--line); border-radius:12px;
+    padding:10px 12px; margin:10px 0 4px;}
+  .timerbar{display:flex; align-items:center; gap:10px; padding:10px 0 4px; flex-wrap:wrap;}
+  .timer-display{font-size:26px; font-weight:700; font-variant-numeric:tabular-nums;
+    letter-spacing:1px; color:var(--txt); min-width:86px;}
+  .timer-btn{background:var(--card2); border:1px solid var(--line); border-radius:12px;
+    padding:9px 14px; font-size:13px; color:var(--txt);}
+  .timer-btn.go{background:#18233b; border-color:var(--accent); color:var(--accent);}
+  .donebtn{background:var(--card2); border:1px solid var(--line); border-radius:10px;
+    padding:8px 10px; font-size:12px; color:var(--dim); width:100%;}
+  .donebtn.on{background:#173326; border-color:var(--accent2); color:var(--accent2);}
+  .daily-body .card{background:var(--card2); margin-bottom:8px;}
+  .daily-body .blockhead{margin:10px 0 8px;}
+  .daily-note{color:var(--dim); font-size:12px; line-height:1.55; padding:2px 0 6px;}
+  .guideitem{padding:10px 0; border-bottom:1px solid var(--line);}
+  .guideitem:last-child{border-bottom:none; padding-bottom:0;}
+  .guideitem b{font-size:14px; color:var(--txt);}
+  .guideitem p{margin:4px 0 0; color:var(--dim); font-size:13px; line-height:1.65;}
+
+  /* 内置计划选择 */
+  .planlist{display:flex; flex-direction:column; gap:10px;}
+  .planopt{display:flex; gap:12px; align-items:flex-start; text-align:left; width:100%;
+    padding:14px; border-radius:14px; background:var(--card2); border:1px solid var(--line);}
+  .planopt .ico{font-size:24px; line-height:1; flex-shrink:0; margin-top:2px;}
+  .planopt .ptxt{flex:1; min-width:0;}
+  .planopt b{display:block; font-size:15px; color:var(--txt);}
+  .planopt small{display:block; margin-top:3px; color:var(--dim); font-size:12px; line-height:1.45;}
+  .planopt .tag{font-size:11px; color:var(--accent2); border:1px solid #24402f;
+    background:#14231d; padding:2px 8px; border-radius:20px; flex-shrink:0;}
+  .planopt.on{border-color:var(--accent); background:#1c2740;}
+  .builtin-title{font-size:12px; color:var(--dim); margin:4px 0 8px;}
+  .builtin-row{display:flex; flex-direction:column; gap:8px; margin-bottom:4px;}
 </style>
 </head>
 <body>
@@ -153,11 +194,9 @@
   <div class="startup-card">
     <div class="emoji">🏋️</div>
     <h2>铁馆</h2>
-    <p class="sub">训练记录，随心掌握。<br>选择一种方式开始你的训练之旅。</p>
-    <div class="btn-row">
-      <button class="btn primary" id="btnUseDefault">📋 使用默认计划</button>
-      <button class="btn ghost" id="btnStartImport">📥 导入计划</button>
-    </div>
+    <p class="sub">训练记录，随心掌握。<br>选择一套内置计划，或导入你自己的计划。</p>
+    <div class="planlist" id="startupPlans"></div>
+    <button class="btn ghost" id="btnStartImport" style="margin-top:10px;">📥 导入我的计划</button>
   </div>
 </div>
 
@@ -165,6 +204,7 @@
   <div class="hrow">
     <div class="brand"><b>铁馆</b><span id="planName">—</span></div>
     <button class="iconbtn" id="btnImport" title="导入/更换计划">＋</button>
+	    <button class="iconbtn" id="btnExport" title="导出数据备份">⬇</button>
   </div>
   <div class="cycle" id="cycle"></div>
 </header>
@@ -175,11 +215,18 @@
 <div class="sheet" id="sheet">
   <div class="panel">
     <h3>导入 / 更换训练计划</h3>
+    <p class="builtin-title">内置计划（切换不会删除历史记录）</p>
+    <div class="builtin-row" id="builtinRow"></div>
+    <hr style="border:none;border-top:1px solid var(--line);margin:16px 0 12px;">
     <p class="hint">把 AI 生成的训练计划整段粘贴进来（表格、编号 1. 、圆点 - 、markdown 标题 ## 都能认），点解析。解析后可预览，确认无误再导入。</p>
     <textarea id="raw" placeholder="例如：&#10;Day A 推力系统&#10;1. 上斜哑铃推胸&#10;2. 平板机器推胸&#10;...&#10;Day D 休息"></textarea>
     <button class="btn primary" id="btnParse">解析预览</button>
     <div class="preview" id="preview"></div>
     <button class="btn ghost" id="btnClose">取消</button>
+	    <hr style="border:none;border-top:1px solid var(--line);margin:16px 0 12px;">
+	    <p class="hint" style="margin-bottom:8px;">💾 数据备份：导出全部训练记录为文件，换设备或重装后可恢复。</p>
+	    <button class="btn ghost" id="btnLoadBackup" style="color:var(--accent2);">📥 导入数据备份</button>
+	    <input type="file" id="fileBackup" accept=".json" style="display:none;">
   </div>
 </div>
 
@@ -189,7 +236,7 @@
 "use strict";
 
 /* ========== 内置的默认计划（一打开就能用）========== */
-const SEED_PLAN = {
+const STRENGTH_PLAN = {
   name: "推-拉-腿-休 四日训练计划",
   protocol: "231协议 · 主/副项6组：预热2组(40-50%,8-10次) → 主攻3组(12-16RM,离心2秒,留1-2次) → 力竭1组(降重15%)",
   days: [
@@ -225,10 +272,147 @@ const SEED_PLAN = {
   ]
 };
 
+/* ========== 内置修复计划：Left AIC + Right BC ========== */
+const REHAB_PLAN = {
+  id: "rehab-v1",
+  name: "Left AIC + Right BC 修复计划",
+  profile: "典型 Left AIC + Right BC：左侧骨盆前倾右旋 + 右侧胸廓/臂链代偿，叠加下肢足弓支撑不足与核心抗伸展失能。",
+  protocol: "沉左肋 · 松右侧 · 足底三点 · 核心抗伸展｜每周 2~3 个精力充沛日做 B1/B2，其余日做 A 方案",
+  daily: {
+    title: "碎片保底 · 方案 A",
+    duration: "约 9 分钟",
+    note: "每天 1~2 次，利用学习间歇完成；精力不足时无条件用它替代 B1/B2。",
+    exercises: [
+      { block:"① 呼吸重置", blockTime:"3 分钟",
+        name:"仰卧 90-90 左侧偏置呼吸", scheme:"practice", sets:2, target:"5 次深呼吸", timer:60,
+        detail:"仰卧屈髋屈膝 90 度踩墙，双膝夹紧泡沫轴或折叠毛巾，轻微抬起尾骨（后腰贴地，感受双侧尤其是左大腿后侧腘绳肌微微发力）。用嘴缓慢呼气 5~6 秒，同时主动将左侧下肋骨向下向内压沉，呼尽后停顿 3 秒，再保持腹部微紧用鼻轻吸气，感受后背尤其是左侧肩胛骨之间被气体撑开。" },
+      { block:"② 右侧定点抑制", blockTime:"3 分钟",
+        name:"泡沫轴静压右侧背阔肌/大圆肌", scheme:"practice", sets:1, target:"60 秒", timer:60,
+        detail:"侧卧将泡沫轴压在右侧腋下后方的背阔肌与大圆肌处，找到最酸胀的痛点后停止滚动，配合缓慢深呼气静压 60 秒。严禁双侧平均分配时间，只做右侧为主。" },
+      { block:"② 右侧定点抑制", blockTime:"3 分钟",
+        name:"筋膜球静压右侧胸小肌", scheme:"practice", sets:1, target:"60 秒", timer:60,
+        detail:"改用筋膜球抵墙，精准按压右侧锁骨下方、靠近肩关节前侧的胸小肌位置，静压 60 秒。严禁双侧平均分配时间，只做右侧为主。" },
+      { block:"③ 前锯肌滑动与足底唤醒", blockTime:"3 分钟",
+        name:"靠墙左前锯肌滑动与足底唤醒", scheme:"practice", sets:2, target:"8 次",
+        detail:"赤脚靠墙站立，双脚建立足底三点支撑（大脚趾球、小脚趾球、足跟压实地面，主动微提足弓）。后脑、胸椎、骶骨贴墙，呼气沉肋，双臂贴墙缓慢上举，重点感受左侧腋下肋骨处（左前锯肌）发力将左肩胛骨向前外侧包裹，做到腰部刚要离墙的临界角度即停，缓慢还原。" }
+    ]
+  },
+  days: [
+    { id:"B1", type:"train", title:"呼吸重置与右链松解", tag:"沉左肋 / 松右链 / 唤醒左前锯肌",
+      note:"总时长约 45 分钟。每周 2~3 次，按 B1 → B2 → B1 轮换；精力不足直接切上方 A 方案。",
+      retest:["右肩 90-90 内旋", "仰卧屈肩"],
+      exercises:[
+        { block:"① 循环 · 呼吸重置与右侧链条松解拉长", blockTime:"15 分钟",
+          name:"仰卧 90-90 左侧偏置呼吸", scheme:"practice", sets:2, target:"5 次深呼吸", timer:60,
+          detail:"仰卧屈髋屈膝 90 度踩墙，双膝夹紧泡沫轴或折叠毛巾，轻微抬起尾骨（后腰贴地，感受双侧尤其是左大腿后侧腘绳肌微微发力）。用嘴缓慢呼气 5~6 秒，同时主动将左侧下肋骨向下向内压沉，呼尽后停顿 3 秒，再保持腹部微紧用鼻轻吸气，感受后背尤其是左侧肩胛骨之间被气体撑开。此动作用于重建 ZOA（Zone of Apposition）。" },
+        { block:"① 循环 · 呼吸重置与右侧链条松解拉长", blockTime:"15 分钟",
+          name:"泡沫轴静压右侧背阔肌/大圆肌", scheme:"practice", sets:1, target:"60~90 秒", timer:90,
+          detail:"侧卧将泡沫轴压在右侧腋下后方的背阔肌与大圆肌处，找到最酸胀的痛点后停止滚动，配合缓慢深呼气静压 60 秒。严禁双侧平均分配时间，只做右侧为主。" },
+        { block:"① 循环 · 呼吸重置与右侧链条松解拉长", blockTime:"15 分钟",
+          name:"筋膜球松解右侧胸小肌", scheme:"practice", sets:1, target:"60 秒", timer:60,
+          detail:"用筋膜球抵墙，精准按压右侧锁骨下方、靠近肩关节前侧的胸小肌位置，静压 60 秒。" },
+        { block:"① 循环 · 呼吸重置与右侧链条松解拉长", blockTime:"15 分钟",
+          name:"筋膜球松解右侧肩后囊", scheme:"practice", sets:1, target:"60 秒", timer:60,
+          detail:"用筋膜球抵墙，松解右侧肩关节后侧关节囊，静压 60 秒。" },
+        { block:"① 循环 · 呼吸重置与右侧链条松解拉长", blockTime:"15 分钟",
+          name:"花生球胸椎中段伸展", scheme:"practice", sets:1, target:"10 次缓慢呼气",
+          detail:"花生球垫在胸椎中段，做 10 次缓慢呼气的胸椎伸展。" },
+        { block:"① 循环 · 呼吸重置与右侧链条松解拉长", blockTime:"15 分钟",
+          name:"单侧跪姿右侧背阔肌拉伸", scheme:"practice", sets:2, target:"45 秒", timer:45,
+          detail:"单侧跪姿，左手压右手向右前方延伸，呼气沉肋，拉长右侧背阔肌，保持 45 秒。" },
+        { block:"① 循环 · 呼吸重置与右侧链条松解拉长", blockTime:"15 分钟",
+          name:"右侧胸肌门框拉伸", scheme:"practice", sets:2, target:"45 秒", timer:45,
+          detail:"右侧胸肌门框拉伸，呼气沉肋，保持 45 秒。" },
+        { block:"② 非对称上肢与核心激活", blockTime:"15 分钟",
+          name:"左侧侧卧呼吸 + 右臂前伸", scheme:"practice", sets:3, target:"5 次呼吸", timer:60,
+          detail:"左侧侧卧，右臂向前推，打开右侧后胸壁，同时激活左腹内斜肌。每组 5 次呼吸。" },
+        { block:"② 非对称上肢与核心激活", blockTime:"15 分钟",
+          name:"弹力绳站姿单侧前锯肌出拳", scheme:"practice", sets:3, target:"10-12 次",
+          detail:"弹力绳站姿单侧前锯肌出拳，重点练左侧，右侧减半容量。" },
+        { block:"② 非对称上肢与核心激活", blockTime:"15 分钟",
+          name:"俯卧 Y-T-W 激活下斜方肌", scheme:"practice", sets:3, target:"10-12 次",
+          detail:"俯卧用 4kg 哑铃或徒手做 Y-T-W，全程沉肩、肋骨贴地，避免上斜方肌耸肩代偿。" },
+        { block:"③ 右肩内旋恢复与单侧整合", blockTime:"15 分钟",
+          name:"左侧卧右肩睡眠者拉伸变式", scheme:"practice", sets:3, target:"45 秒", timer:45,
+          detail:"左侧卧，右肩睡眠者拉伸变式，微调角度避免肩前撞击，轻柔恢复右肩内旋 45 秒。" },
+        { block:"③ 右肩内旋恢复与单侧整合", blockTime:"15 分钟",
+          name:"左手单臂哑铃过顶推举", scheme:"practice", sets:3, target:"8-10 次",
+          detail:"左手持 4kg 哑铃做单臂底朝上/标准过顶推举，配合呼气沉左肋，强化左前锯肌与核心抗侧屈。" },
+        { block:"③ 右肩内旋恢复与单侧整合", blockTime:"15 分钟",
+          name:"左手单臂农夫行走", scheme:"practice", sets:3, target:"30 秒", timer:30,
+          detail:"左手持 4kg 哑铃农夫行走 30 秒，保持骨盆与双肩绝对水平，对抗躯干右侧倾。" }
+      ]},
+    { id:"B2", type:"train", title:"髋足松解与下肢整合", tag:"左腘绳 / 左内收 / 足底三点",
+      note:"总时长约 45 分钟。B1 与 B2 交替进行，每周 2~3 次；精力不足直接切上方 A 方案。",
+      retest:["曲膝死虫是否无弹响", "赤脚单腿站立稳定性"],
+      exercises:[
+        { block:"① 循环 · 呼吸重置与髋足松解拉长", blockTime:"15 分钟",
+          name:"仰卧 90-90 偏置呼吸（左内收夹紧）", scheme:"practice", sets:2, target:"5 次深呼吸", timer:60,
+          detail:"仰卧屈髋屈膝 90 度踩墙，双膝夹紧泡沫轴或折叠毛巾，重点体会左腘绳肌与左内收肌夹紧泡沫轴；用嘴缓慢呼气 5~6 秒，主动将左侧下肋骨向下向内压沉，呼尽后停顿 3 秒，再保持腹部微紧用鼻轻吸气。" },
+        { block:"① 循环 · 呼吸重置与髋足松解拉长", blockTime:"15 分钟",
+          name:"筋膜球滚压双侧足底筋膜", scheme:"practice", sets:2, target:"每侧 45 秒", timer:45,
+          detail:"用筋膜球滚压双侧足底筋膜各 45 秒。" },
+        { block:"① 循环 · 呼吸重置与髋足松解拉长", blockTime:"15 分钟",
+          name:"松解右侧股直肌", scheme:"practice", sets:1, target:"60 秒", timer:60,
+          detail:"用泡沫轴或筋膜枪低档松解右侧股直肌 60 秒。" },
+        { block:"① 循环 · 呼吸重置与髋足松解拉长", blockTime:"15 分钟",
+          name:"松解右侧阔筋膜张肌（TFL）", scheme:"practice", sets:1, target:"60 秒", timer:60,
+          detail:"用泡沫轴或筋膜枪低档松解右侧阔筋膜张肌（TFL）60 秒。" },
+        { block:"① 循环 · 呼吸重置与髋足松解拉长", blockTime:"15 分钟",
+          name:"松解右侧梨状肌", scheme:"practice", sets:1, target:"60 秒", timer:60,
+          detail:"用泡沫轴或筋膜枪低档松解右侧梨状肌 60 秒。" },
+        { block:"① 循环 · 呼吸重置与髋足松解拉长", blockTime:"15 分钟",
+          name:"半跪姿右侧髂腰肌动态拉伸", scheme:"practice", sets:2, target:"45 秒", timer:45,
+          detail:"半跪姿，左脚在前，先骨盆后倾夹紧右臀，再微前移，严禁塌腰，拉伸右侧髂腰肌 45 秒。" },
+        { block:"② 无弹响核心与单侧髋激活", blockTime:"15 分钟",
+          name:"靠墙推手曲膝死虫", scheme:"practice", sets:3, target:"10-12 次",
+          detail:"仰卧屈髋屈膝，双手向后推稳墙面激活前锯肌与腹壁，呼气锁死肋骨后，保持膝盖弯曲 90 度交替用脚跟轻点地（缩短力臂彻底消除右髋弹响）。" },
+        { block:"② 无弹响核心与单侧髋激活", blockTime:"15 分钟",
+          name:"右侧卧左腿内收", scheme:"practice", sets:3, target:"10-12 次",
+          detail:"右侧卧，左腿内收，激活左内收肌。" },
+        { block:"② 无弹响核心与单侧髋激活", blockTime:"15 分钟",
+          name:"左侧卧右侧臀中肌外展", scheme:"practice", sets:3, target:"10-12 次",
+          detail:"左侧卧，右腿外展激活右侧臀中肌；右脚微微内八、骨盆不向后倒。" },
+        { block:"② 无弹响核心与单侧髋激活", blockTime:"15 分钟",
+          name:"左腿主导单腿臀桥", scheme:"practice", sets:3, target:"10-12 次",
+          detail:"左腿主导单腿臀桥，激活左侧臀肌与左腘绳肌。" },
+        { block:"③ 足底三点与下肢非对称整合", blockTime:"15 分钟",
+          name:"双手持 4kg 哑铃静态分腿蹲", scheme:"practice", sets:3, target:"10 次（右侧 6~8 次）",
+          detail:"双手持 4kg 哑铃做保加利亚/静态分腿蹲，左脚在前、重心略偏左脚跟，激活左臀与左腘绳肌，减少右侧代偿；每组 10 次，右侧做 6~8 次即可。" },
+        { block:"③ 足底三点与下肢非对称整合", blockTime:"15 分钟",
+          name:"左手持哑铃对侧单腿硬拉", scheme:"practice", sets:3, target:"8-10 次",
+          detail:"左手持哑铃做对侧单腿硬拉，右脚支撑或左脚支撑交替，强化髋铰链与足踝抗旋。" },
+        { block:"③ 足底三点与下肢非对称整合", blockTime:"15 分钟",
+          name:"静态短足单腿站立", scheme:"practice", sets:2, target:"每侧 30 秒", timer:30,
+          detail:"赤脚保持足底三点抓地（短足练习），静态单腿站立，每侧 30 秒。" }
+      ]},
+    { id:"休", label:"", type:"rest", title:"恢复日 · 零决策", tag:"低耗能日只做 A",
+      note:"不去硬练 B1/B2。优先做上方 A 方案 1~2 次，给神经系统持续输入「沉左肋、松右侧」的信号。",
+      recovery:[
+        "无条件切换 A 方案：每天 1~2 次，利用学习间歇完成。",
+        "久坐补丁：书桌下放 10~15cm 高的脚踏（或废旧书箱），坐姿双脚踩实；或双膝间夹轻质瑜伽砖/泡沫轴，每次夹 10 分钟。",
+        "脑力耗尽日不补 B1/B2，不因停练产生挫败感。"
+      ]}
+  ],
+  guide: [
+    { title:"零决策周循环", text:"每周只在脑力充沛的 2~3 天，按 B1 → B2 → B1 的顺序严格轮换（每次 40~55 分钟）；其余高强度脑力学习日或意志力耗竭日，无条件切换为 A 方案（每天 1~2 次，利用学习间歇完成）。既不会因为停练产生挫败感，又能持续给神经系统输入「沉左肋、松右侧」的正确信号。" },
+    { title:"练后即刻重测", text:"每次 B1 练完立刻重测右肩 90-90 内旋和仰卧屈肩；每次 B2 练完立刻重测曲膝死虫是否无弹响和赤脚单腿站立稳定性。如果右肩内旋角度肉眼可见变大，说明当天的右侧抑制和左肋下沉完全打中了靶点。" },
+    { title:"久坐跷二郎腿的物理补丁", text:"不要靠意志力硬忍。在书桌下放一个 10~15cm 高的脚踏（或废旧书箱），坐姿时双脚踩实；或者在双膝间夹一个轻质瑜伽砖/泡沫轴（每次夹 10 分钟），既物理阻断跷二郎腿，又能顺带低强度激活内收肌和骨盆底。" }
+  ]
+};
+
+const BUILTIN_PLANS = [
+  { key:"strength", icon:"🏋️", title:"推-拉-腿-休 四日计划", desc:"231 协议 · 力量与体态基础", plan:STRENGTH_PLAN },
+  { key:"rehab", icon:"🧘", title:"Left AIC + Right BC 修复计划", desc:"B1 / B2 主循环 + 每日 A 碎片保底", plan:REHAB_PLAN }
+];
+
+// parsePlan 里仍引用 SEED_PLAN.protocol，保留别名
+const SEED_PLAN = STRENGTH_PLAN;
+
 /* ========== 存储 ========== */
 const KEY = "gymlog.v1";
 let db = load();
-function fresh(){ return { plan: JSON.parse(JSON.stringify(SEED_PLAN)), anchor:null, logs:{}, nutrition:null }; }
+function fresh(){ return { plan: JSON.parse(JSON.stringify(STRENGTH_PLAN)), anchor:null, logs:{}, nutrition:null }; }
 function load(){ try{ const raw=localStorage.getItem(KEY); if(!raw) return fresh(); return JSON.parse(raw); }catch(e){ console.warn("铁馆: localStorage 数据损坏，已重置为默认计划", e); return fresh(); } }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(db)); }
   catch(e){ toast("保存失败："+(e.name==="QuotaExceededError"?"空间已满":("错误("+e.name+")"))); } }
@@ -265,6 +449,9 @@ function calcNutri(weight,goal){
 
 /* ========== 组结构（231 或 固定组）========== */
 function setRows(ex){
+  if(ex.scheme==="practice"){
+    return Array.from({length: ex.sets||1}, (_,i)=>({label:"组"+(i+1), sub: ex.target||"", cls:""}));
+  }
   if(ex.scheme==="fixed"){
     return Array.from({length: ex.sets||3}, (_,i)=>({label:"组"+(i+1), sub: ex.target||"", cls:""}));
   }
@@ -288,26 +475,78 @@ function lastFor(exName){
   const dates = Object.keys(db.logs).filter(d=>d!==today()).sort().reverse();
   for(const d of dates){
     const s = db.logs[d].sets?.[exName];
-    if(s && s.some(x=>x && (x.w||x.r))) return { date:d, sets:s };
+    if(s && s.some(x=>x && (x.w||x.r||x.done))) return { date:d, sets:s };
   }
   return null;
 }
 function fmtLast(l){
   if(!l) return "";
-  // 有重量→"20×12"；纯次数/计时（自重、平板支撑）→"20次"
+  // 有重量→"20×12"；纯次数/计时（自重、平板支撑）→"20次"；校正动作→"2 组完成"
   const main = l.sets.filter(x=>x&&(x.w||x.r)).map(x=> x.w ? (x.w+"×"+(x.r||"?")) : (x.r+"次"));
   const uniq = [...new Set(main)];
-  return uniq.slice(0,3).join("  ");
+  if(uniq.length) return uniq.slice(0,3).join("  ");
+  const done = l.sets.filter(x=>x&&x.done).length;
+  return done ? done+" 组完成" : "";
 }
 
 /* ========== 渲染 ========== */
 const $ = s=>document.querySelector(s);
 // 转义动态文本，防止粘贴内容/输入里的 < " & 破坏渲染或注入脚本
 const esc = s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ========== 倒计时 ========== */
+const activeTimers = new Set();
+function stopAllTimers(){
+  activeTimers.forEach(id=>clearInterval(id));
+  activeTimers.clear();
+}
+function fmtClock(sec){
+  const s=Math.max(0,Math.ceil(sec));
+  return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+}
+function timerWidget(seconds){
+  const wrap=document.createElement("div"); wrap.className="timerbar";
+  const disp=document.createElement("div"); disp.className="timer-display";
+  disp.setAttribute("role","timer");
+  const start=document.createElement("button"); start.type="button"; start.className="timer-btn go";
+  const reset=document.createElement("button"); reset.type="button"; reset.className="timer-btn"; reset.textContent="重置";
+  let remaining=seconds, endsAt=0, tick=null, running=false;
+  const paint=()=>{ disp.textContent=fmtClock(remaining); };
+  const settle=()=>{
+    running=false;
+    if(tick){ clearInterval(tick); activeTimers.delete(tick); tick=null; }
+  };
+  const syncBtn=()=>{
+    start.textContent = running ? "暂停" : (remaining<=0 ? "重来" : (remaining<seconds ? "继续" : "开始"));
+  };
+  start.onclick=()=>{
+    if(running){
+      remaining=Math.max(0,(endsAt-Date.now())/1000);
+      settle(); paint(); syncBtn(); return;
+    }
+    if(remaining<=0) remaining=seconds;
+    running=true; endsAt=Date.now()+remaining*1000; start.textContent="暂停";
+    tick=setInterval(()=>{
+      remaining=(endsAt-Date.now())/1000;
+      if(remaining<=0){
+        remaining=0; paint(); settle(); syncBtn();
+        toast("时间到 · 换边/下一组");
+        if(navigator.vibrate) navigator.vibrate(200);
+      } else paint();
+    },250);
+    activeTimers.add(tick);
+  };
+  reset.onclick=()=>{ settle(); remaining=seconds; paint(); syncBtn(); };
+  paint(); syncBtn();
+  wrap.appendChild(disp); wrap.appendChild(start); wrap.appendChild(reset);
+  return wrap;
+}
+
 function render(){
+  stopAllTimers();
   // 计划缺失或 days 为空（存储损坏）→ 恢复内置计划，避免白屏
   if(!db.plan || !Array.isArray(db.plan.days) || db.plan.days.length===0){
-    db.plan = JSON.parse(JSON.stringify(SEED_PLAN)); save();
+    db.plan = JSON.parse(JSON.stringify(STRENGTH_PLAN)); save();
   }
   $("#planName").textContent = db.plan.name || "";
   renderCycle();
@@ -322,6 +561,13 @@ function render(){
   head.innerHTML = `<h1>${day.type==="rest" ? "今天休息" : esc(day.title||("Day "+day.id))}</h1>
     <span class="sub">${today()} ${wk} · Day ${esc(day.id)}</span>`;
   main.appendChild(head);
+
+  if(db.plan.profile){
+    const p=document.createElement("div"); p.className="banner";
+    p.innerHTML = `<b>生物力学画像</b><br>${esc(db.plan.profile)}`
+      + (db.plan.protocol ? "<br><br>"+esc(db.plan.protocol) : "");
+    main.appendChild(p);
+  }
 
   if(day.note){
     const b=document.createElement("div"); b.className="banner";
@@ -376,24 +622,46 @@ function render(){
   main.appendChild(nCard);
   // ---------------------------------
 
+  // 修复计划：方案 A 每日常驻入口（休息日默认展开）
+  if(db.plan.daily){
+    main.appendChild(dailyCard(db.plan.daily, day.type==="rest"));
+  }
+
   if(day.type==="rest"){
     const c=document.createElement("div"); c.className="card rest-card"; c.style.padding="16px";
-    c.innerHTML = `<h2>居家热修复协议</h2>`;
+    c.innerHTML = `<h2>${db.plan.id==="rehab-v1" ? "恢复日清单" : "居家热修复协议"}</h2>`;
     const ul=document.createElement("ul");
     (day.recovery||[]).forEach(r=>{ const li=document.createElement("li"); li.textContent=r; ul.appendChild(li); });
     c.appendChild(ul);
     main.appendChild(c);
   } else {
-    if(db.plan.protocol){
+    if(db.plan.protocol && !db.plan.profile){
       const b=document.createElement("div"); b.className="banner";
       b.style.fontSize="12px"; b.textContent = db.plan.protocol;
       main.appendChild(b);
     }
-    day.exercises.forEach((ex,i)=> main.appendChild(exerciseCard(ex,i)) );
+    const dayPrefix = db.plan.id==="rehab-v1" ? (day.id+"·") : "";
+    let curBlock=null;
+    day.exercises.forEach((ex,i)=>{
+      if(ex.block && ex.block!==curBlock){
+        main.appendChild(blockHead(ex.block, ex.blockTime));
+        curBlock=ex.block;
+      }
+      main.appendChild(exerciseCard(ex,i,dayPrefix));
+    });
+    if(Array.isArray(day.retest) && day.retest.length){
+      const rb=document.createElement("div"); rb.className="banner"; rb.style.borderColor="#5a4a1f";
+      rb.innerHTML = `<b>练后即刻重测</b><br>${day.retest.map(esc).join(" · ")}`;
+      main.appendChild(rb);
+    }
+  }
+
+  if(Array.isArray(db.plan.guide) && db.plan.guide.length){
+    main.appendChild(guideCard(db.plan.guide));
   }
 
   const foot=document.createElement("div"); foot.className="foot";
-  foot.textContent = `点上方 A/B/C/D 可校准“今天是第几天” · 数据只存在本机浏览器`;
+  foot.textContent = `点上方日期条可校准“今天是第几天” · 数据只存在本机浏览器`;
   main.appendChild(foot);
 }
 
@@ -403,24 +671,95 @@ function renderCycle(){
   db.plan.days.forEach((d,i)=>{
     const el=document.createElement("button");
     el.className="chip"+(i===idx?" on":"")+(d.type==="rest"?" rest":"");
-    el.innerHTML=`<b>${esc(d.id)}</b>${d.type==="rest"?"休":esc((d.title||"").slice(0,2))}`;
+    const sub = d.label != null ? d.label : (d.type==="rest" ? "休" : (d.title||"").slice(0,2));
+    el.innerHTML=`<b>${esc(d.id)}</b>${esc(sub)}`;
     el.onclick=()=>setTodayIndex(i);
     wrap.appendChild(el);
   });
 }
 
-function exerciseCard(ex,i){
-  const log=todayLog();
-  const chosen = log.variant[i] || ex.name;          // 当前选中的（主动作或替代）
-  const exKey = i+"·"+chosen;                          // 记录键：位置+动作名，区分同名动作与不同变体
-  const card=document.createElement("div"); card.className="card";
+/* ========== 修复计划的专用组件 ========== */
+function blockHead(title,time){
+  const el=document.createElement("div"); el.className="blockhead";
+  const t=document.createElement("span"); t.className="btitle"; t.textContent=title||"";
+  el.appendChild(t);
+  if(time){ const b=document.createElement("span"); b.className="btime"; b.textContent=time; el.appendChild(b); }
+  return el;
+}
 
+function dailyCard(daily, open){
+  const card=document.createElement("div"); card.className="card daily-card"+(open?" open":"");
   const top=document.createElement("div"); top.className="top";
   top.setAttribute("role","button"); top.setAttribute("tabindex","0");
-  top.setAttribute("aria-expanded","false"); top.setAttribute("aria-controls","ex-body-"+i);
+  top.setAttribute("aria-expanded",String(!!open)); top.setAttribute("aria-controls","daily-body");
+  top.innerHTML=`<div class="idx">🩹</div>
+    <div class="name">${esc(daily.title||"碎片保底")}</div>
+    <div class="scheme">${esc(daily.duration||"")}</div>
+    <div class="caret">›</div>`;
+  const toggle=()=>{ const isOpen=card.classList.toggle("open"); top.setAttribute("aria-expanded",String(isOpen)); };
+  top.onclick=toggle;
+  top.onkeydown=(e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); } };
+  card.appendChild(top);
+
+  const body=document.createElement("div"); body.className="body daily-body"; body.id="daily-body";
+  if(daily.note){
+    const n=document.createElement("div"); n.className="daily-note"; n.textContent=daily.note;
+    body.appendChild(n);
+  }
+  let curBlock=null;
+  (daily.exercises||[]).forEach((ex,i)=>{
+    if(ex.block && ex.block!==curBlock){
+      body.appendChild(blockHead(ex.block, ex.blockTime));
+      curBlock=ex.block;
+    }
+    body.appendChild(exerciseCard(ex,i,"A·"));
+  });
+  card.appendChild(body);
+  return card;
+}
+
+function guideCard(items){
+  const card=document.createElement("div"); card.className="card";
+  const top=document.createElement("div"); top.className="top";
+  top.setAttribute("role","button"); top.setAttribute("tabindex","0");
+  top.setAttribute("aria-expanded","false"); top.setAttribute("aria-controls","guide-body");
+  top.innerHTML=`<div class="idx">📌</div>
+    <div class="name">执行法则与日常补丁</div>
+    <div class="caret">›</div>`;
+  const toggle=()=>{ const isOpen=card.classList.toggle("open"); top.setAttribute("aria-expanded",String(isOpen)); };
+  top.onclick=toggle;
+  top.onkeydown=(e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); } };
+  card.appendChild(top);
+
+  const body=document.createElement("div"); body.className="body"; body.id="guide-body";
+  items.forEach(g=>{
+    const item=document.createElement("div"); item.className="guideitem";
+    const b=document.createElement("b"); b.textContent=g.title||"";
+    const p=document.createElement("p"); p.textContent=g.text||"";
+    item.appendChild(b); item.appendChild(p); body.appendChild(item);
+  });
+  card.appendChild(body);
+  return card;
+}
+
+function exerciseCard(ex,i,prefix){
+  prefix = prefix || "";
+  const log=todayLog();
+  const slot = prefix+i;                               // 变体槽位：区分计划/天/动作位置
+  const chosen = log.variant[slot] || ex.name;          // 当前选中的（主动作或替代）
+  const exKey = slot+"·"+chosen;                        // 记录键：位置+动作名，区分同名动作与不同变体
+  const isPractice = ex.scheme==="practice";
+  const card=document.createElement("div"); card.className="card";
+
+  const bodyId = "ex-body-"+String(slot).replace(/[^\w-]/g,"");
+  const top=document.createElement("div"); top.className="top";
+  top.setAttribute("role","button"); top.setAttribute("tabindex","0");
+  top.setAttribute("aria-expanded","false"); top.setAttribute("aria-controls",bodyId);
+  const badge = isPractice ? esc((ex.sets||1)+"组")
+    : (ex.scheme==="fixed" ? esc((ex.sets||3)+"组") : "231");
   top.innerHTML=`<div class="idx">${i+1}</div>
     <div class="name">${esc(chosen)}</div>
-    <div class="scheme">${ex.scheme==="fixed" ? esc((ex.sets||3)+"组") : "231"}</div>
+    <div class="scheme">${badge}${ex.timer?" ⏱":""}</div>
     <div class="caret">›</div>`;
   const toggleOpen=()=>{ const isOpen=card.classList.toggle("open"); top.setAttribute("aria-expanded",String(isOpen)); };
   top.onclick=toggleOpen;
@@ -435,19 +774,29 @@ function exerciseCard(ex,i){
       a.className="alt"+(nm===chosen?" on":"");
       a.textContent=nm;
       a.onclick=(e)=>{ e.stopPropagation();
-        log.variant[i] = (nm===ex.name ? undefined : nm); save();
-        const fresh=exerciseCard(ex,i); fresh.classList.add("open"); card.replaceWith(fresh); };
+        log.variant[slot] = (nm===ex.name ? undefined : nm); save();
+        stopAllTimers();
+        const fresh=exerciseCard(ex,i,prefix); fresh.classList.add("open"); card.replaceWith(fresh); };
       alts.appendChild(a);
     });
     card.appendChild(alts);
   }
 
   // 组记录
-  const body=document.createElement("div"); body.className="body"; body.id="ex-body-"+i;
+  const body=document.createElement("div"); body.className="body"; body.id=bodyId;
+
+  // 完整做法要点
+  if(ex.detail){
+    const d=document.createElement("div"); d.className="detail"; d.textContent=ex.detail;
+    body.appendChild(d);
+  }
+  // 时长类动作的倒计时
+  if(ex.timer>0) body.appendChild(timerWidget(ex.timer));
+
   const last=lastFor(exKey);
   const lastline=document.createElement("div"); lastline.className="lastline";
   lastline.innerHTML=`<span>上次：${last?esc(fmtLast(last)):"—"}</span>`;
-  if(last){
+  if(last && !isPractice){
     const r=document.createElement("button"); r.className="reuse"; r.textContent="沿用上次";
     r.onclick=()=>{ log.sets[exKey]=JSON.parse(JSON.stringify(last.sets)); save();
       body.querySelectorAll("tr[data-si]").forEach(tr=>{ const si=+tr.dataset.si; const v=last.sets[si]||{};
@@ -458,9 +807,40 @@ function exerciseCard(ex,i){
   body.appendChild(lastline);
 
   const tbl=document.createElement("table"); tbl.className="sets";
-  tbl.innerHTML=`<tr><th class="h hl">组</th><th class="h">重量 kg</th><th class="h">次数</th></tr>`;
   const rows=setRows(ex);
   const saved=log.sets[exKey]||[];
+
+  if(isPractice){
+    tbl.innerHTML=`<tr><th class="h hl">组</th><th class="h">目标</th><th class="h">完成</th></tr>`;
+    rows.forEach((row,si)=>{
+      const tr=document.createElement("tr"); tr.dataset.si=si;
+      tr.innerHTML=`<td class="slabel"><span>${esc(row.label)}</span></td>
+        <td class="slabel" style="text-align:center"><small>${esc(row.sub)}</small></td>
+        <td></td>`;
+      const btn=document.createElement("button"); btn.type="button"; btn.className="donebtn";
+      const sync=()=>{
+        const done=!!(log.sets[exKey] && log.sets[exKey][si] && log.sets[exKey][si].done);
+        btn.classList.toggle("on",done);
+        btn.textContent=done?"✓ 已完成":"完成";
+        btn.setAttribute("aria-pressed",String(done));
+      };
+      btn.onclick=()=>{
+        if(!log.sets[exKey]) log.sets[exKey]=[];
+        const cur=log.sets[exKey][si]||{};
+        cur.done=!cur.done;
+        log.sets[exKey][si]=cur;
+        save(); sync();
+      };
+      sync();
+      tr.querySelector("td:last-child").appendChild(btn);
+      tbl.appendChild(tr);
+    });
+    body.appendChild(tbl);
+    card.appendChild(body);
+    return card;
+  }
+
+  tbl.innerHTML=`<tr><th class="h hl">组</th><th class="h">重量 kg</th><th class="h">次数</th></tr>`;
   rows.forEach((row,si)=>{
     const tr=document.createElement("tr"); tr.dataset.si=si;
     const v=saved[si]||{};
@@ -565,9 +945,61 @@ function parsePlan(text){
   return good.length ? { name:"我的训练计划", protocol: SEED_PLAN.protocol, days:good } : null;
 }
 
+/* ========== 内置计划切换 ========== */
+function clonePlan(p){ return JSON.parse(JSON.stringify(p)); }
+function currentPlanKey(){
+  if(!db.onboarded || !db.plan) return "";
+  if(db.plan.id === "rehab-v1") return "rehab";
+  const hit = BUILTIN_PLANS.find(p=>p.plan.name === db.plan.name);
+  return hit ? hit.key : "";
+}
+function applyPlan(key){
+  const item = BUILTIN_PLANS.find(p=>p.key === key);
+  if(!item) return;
+  db.plan = clonePlan(item.plan);
+  db.anchor = { date: today(), index: 0 };
+  db.onboarded = true;
+  save();
+  $("#startupOverlay").classList.add("hidden");
+  $("#sheet").classList.remove("on");
+  render();
+  window.scrollTo(0,0);
+  toast("已切换 · " + item.plan.name);
+}
+function choosePlan(key){
+  if(key === currentPlanKey()){ toast("已是当前计划"); return; }
+  applyPlan(key);
+}
+function fillPlanOptions(container, onPick){
+  if(!container) return;
+  container.innerHTML = "";
+  const cur = currentPlanKey();
+  BUILTIN_PLANS.forEach(item=>{
+    const b=document.createElement("button"); b.type="button";
+    b.className="planopt"+(item.key===cur?" on":"");
+    const ico=document.createElement("span"); ico.className="ico"; ico.textContent=item.icon||"";
+    const ptxt=document.createElement("span"); ptxt.className="ptxt";
+    const title=document.createElement("b"); title.textContent=item.title||"";
+    const desc=document.createElement("small"); desc.textContent=item.desc||"";
+    ptxt.appendChild(title); ptxt.appendChild(desc);
+    b.appendChild(ico); b.appendChild(ptxt);
+    if(item.key===cur){
+      const tag=document.createElement("span"); tag.className="tag"; tag.textContent="当前";
+      b.appendChild(tag);
+    }
+    b.onclick=()=>onPick(item.key);
+    container.appendChild(b);
+  });
+}
+
 /* ========== 导入 UI ========== */
 let pendingPlan=null;
-$("#btnImport").onclick=()=>{ $("#sheet").classList.add("on"); $("#preview").innerHTML=""; pendingPlan=null; setTimeout(()=>$("#raw").focus(),100); };
+$("#btnImport").onclick=()=>{
+  fillPlanOptions($("#builtinRow"), choosePlan);
+  $("#sheet").classList.add("on");
+  $("#preview").innerHTML=""; pendingPlan=null;
+  setTimeout(()=>$("#raw").focus(),100);
+};
 $("#btnClose").onclick=()=>{ $("#sheet").classList.remove("on");
   if(!db.onboarded){ $("#startupOverlay").classList.remove("hidden"); return; }
   $("#btnImport").focus(); };
@@ -600,16 +1032,62 @@ $("#btnParse").onclick=()=>{
   pv.appendChild(ok);
 };
 
+/* ========== 数据导出/导入 ========== */
+function exportBackup(){
+  const backup = {
+    version: "gymlog.v1",
+    exportedAt: new Date().toISOString(),
+    data: db
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "铁馆备份_" + today() + ".json";
+  a.click();
+  URL.revokeObjectURL(url);
+  toast("备份已下载");
+}
+
+$("#btnExport").onclick = exportBackup;
+
+$("#btnLoadBackup").onclick = ()=>{
+  $("#fileBackup").click();
+};
+
+$("#fileBackup").addEventListener("change", function(){
+  const file = this.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const backup = JSON.parse(e.target.result);
+      if(!backup.data || !backup.data.plan || !backup.data.logs){
+        toast("备份文件格式不正确"); return;
+      }
+      if(!confirm("确认导入此备份？当前所有数据将被覆盖。")) return;
+      db = backup.data;
+      save();
+      $("#sheet").classList.remove("on");
+      render();
+      const d = backup.exportedAt ? new Date(backup.exportedAt).toLocaleString("zh-CN") : "未知";
+      toast("数据已恢复 · 备份日期: " + d);
+    } catch(err){
+      toast("备份文件解析失败: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+  this.value = ""; // 允许重复选同一文件
+});
+
 /* ========== 首次启动选择 ========== */
 if(!db.onboarded){
   $("#startupOverlay").classList.remove("hidden");
-  $("#btnUseDefault").onclick = ()=>{
-    db.onboarded = true; save();
-    $("#startupOverlay").classList.add("hidden");
-    render();
-  };
+  fillPlanOptions($("#startupPlans"), choosePlan);
   $("#btnStartImport").onclick = ()=>{
     $("#startupOverlay").classList.add("hidden");
+    fillPlanOptions($("#builtinRow"), choosePlan);
+    $("#preview").innerHTML=""; pendingPlan=null;
     $("#sheet").classList.add("on");
     setTimeout(()=>$("#raw").focus(),100);
   };
